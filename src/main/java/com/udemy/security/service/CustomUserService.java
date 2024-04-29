@@ -17,7 +17,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CustomUserService implements UserDetailsService {
-
+    //UserDetailsService interface chỉ có 1 method loadUserByName
     private final CustomerRepository customerRepository;
 
     @Override
