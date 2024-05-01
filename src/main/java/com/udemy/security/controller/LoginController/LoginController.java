@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
+
 @RestController
 @RequiredArgsConstructor
 public class LoginController {
@@ -20,7 +22,7 @@ public class LoginController {
         ResponseEntity response = null;
         try {
             Customer newCustomer = customerRepository.save(customer);
-            if (newCustomer.getId() > 0) {
+            if (newCustomer != null) {
                 response = ResponseEntity.status(HttpStatus.CREATED).body("Give user detail are successfully registered");
             }
         } catch (Exception e) {
