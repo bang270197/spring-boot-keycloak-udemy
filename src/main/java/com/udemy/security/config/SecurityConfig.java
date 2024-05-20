@@ -15,8 +15,10 @@ public class SecurityConfig {
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.csrf((csrf) -> csrf.disable())
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/api/v1/**").authenticated()
-                        .requestMatchers("/notices", "/contact", "/register").permitAll())
+//                        .requestMatchers("/api/v1/**").authenticated()
+                        .requestMatchers("/myAccount", "/myBalance", "/myCard", "/myLoans", "/user").authenticated()
+//                        .requestMatchers("/notices", "/contact", "/register").permitAll())
+                        .requestMatchers("/myNotice", "/myContact", "/register").permitAll())
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults());
         return http.build();
