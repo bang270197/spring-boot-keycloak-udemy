@@ -1,5 +1,7 @@
 package com.udemy.security.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -28,6 +31,7 @@ public class Customer {
     @Column(name = "mobile_number", nullable = false, length = 20)
     private String mobileNumber;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "pwd", nullable = false, length = 500)
     private String pwd;
 
@@ -37,5 +41,9 @@ public class Customer {
     @Column(name = "create_dt")
     @CreationTimestamp
     private LocalDate createDt;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "customer", fetch = FetchType.EAGER)
+    private Set<Authority> authoritys;
 
 }

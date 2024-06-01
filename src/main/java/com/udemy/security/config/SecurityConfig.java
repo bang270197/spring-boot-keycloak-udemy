@@ -29,7 +29,7 @@ public class SecurityConfig {
         requestHandler.setCsrfRequestAttributeName("_csrf");
 
         http.securityContext(securityContext -> securityContext.requireExplicitSave(false))
-                .sessionManagement(session ->session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
 //                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
                     @Override
@@ -43,12 +43,23 @@ public class SecurityConfig {
                         return config;
                     }
                 }))
-                .csrf(csrf -> csrf.csrfTokenRequestHandler(requestHandler).ignoringRequestMatchers( "/register")
+                .csrf(csrf -> csrf.csrfTokenRequestHandler(requestHandler).ignoringRequestMatchers("/register")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 ).addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
-                .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/myNotice","/myAccount","/myContact", "/myBalance", "/myCard", "/myLoans", "/user").authenticated()
-                        .requestMatchers( "/register").permitAll()
+                .authorizeHttpRequests(requests ->
+                        requests
+                                .requestMatchers("/myAccount").hasAuthority("VIEWACCOUNT")
+                                .requestMatchers("/myBalance").hasAnyAuthority("VIEWBALANCE","VIEWACCOUNT")
+                                .requestMatchers("/myLoans").hasAuthority("VIEWLOANS")
+                                .requestMatchers("/myCard").hasAuthority("VIEWCARDS")
+                                .requestMatchers("/myCard").hasAuthority("VIEWCARDS")
+
+                                .requestMatchers("/myAccount",
+                                        "/myContact",
+                                        "/myBalance",
+                                        "/myCard",
+                                        "/myLoans", "/user").authenticated()
+                                .requestMatchers("/myNotice", "/register").permitAll()
                 )
                 .formLogin(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults());

@@ -1,5 +1,6 @@
 package com.udemy.security.config;
 
+import com.udemy.security.entity.Authority;
 import com.udemy.security.entity.Customer;
 import com.udemy.security.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Component
@@ -36,8 +38,8 @@ public class UserPwdAuthenticationProvider implements AuthenticationProvider {
        List<Customer> customers = customerRepository.findByEmail(userName);
        if (!customers.isEmpty()){
            if (passwordEncoder.matches(pwd, customers.get(0).getPwd())){
-                List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-                grantedAuthorities.add(new SimpleGrantedAuthority(customers.get(0).getRole()));
+                List<GrantedAuthority> grantedAuthorities = getGrantedAuthoritys(customers.get(0).getAuthoritys());
+//                grantedAuthorities.add(new SimpleGrantedAuthority(customers.get(0).getRole()));
 
                return new UsernamePasswordAuthenticationToken(userName, pwd, grantedAuthorities);
            }
@@ -45,6 +47,14 @@ public class UserPwdAuthenticationProvider implements AuthenticationProvider {
        } else {
            throw new BadCredentialsException("No user registered with the detail");
        }
+    }
+
+    private List<GrantedAuthority> getGrantedAuthoritys(Set<Authority> authoritys){
+        List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+        for (Authority item :authoritys){
+            grantedAuthorities.add(new SimpleGrantedAuthority(item.getName()));
+        }
+        return grantedAuthorities;
     }
 
     @Override
