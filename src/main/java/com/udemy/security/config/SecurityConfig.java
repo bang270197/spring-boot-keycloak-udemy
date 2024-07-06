@@ -1,6 +1,7 @@
 package com.udemy.security.config;
 
 import com.udemy.security.filter.CsrfCookieFilter;
+import com.udemy.security.filter.RequestValidateBeforeFillter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,6 +47,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.csrfTokenRequestHandler(requestHandler).ignoringRequestMatchers("/register")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 ).addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
+                //Test fillterBefore
+//                .addFilterBefore(new RequestValidateBeforeFillter(), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests(requests ->
                         requests
                                 .requestMatchers("/myAccount").hasAuthority("VIEWACCOUNT")
@@ -58,7 +61,7 @@ public class SecurityConfig {
                                         "/myContact",
                                         "/myBalance",
                                         "/myCard",
-                                        "/myLoans", "/user").authenticated()
+                                        "/myLoans", "/user", "/api/v1/**").authenticated()
                                 .requestMatchers("/myNotice", "/register").permitAll()
                 )
                 .formLogin(Customizer.withDefaults())
