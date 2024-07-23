@@ -1,5 +1,7 @@
 package com.udemy.security.config;
 
+import com.udemy.security.filter.AuthoritiesLoggingAtFilter;
+import com.udemy.security.filter.AuthoritieslLoggingAfterFilter;
 import com.udemy.security.filter.CsrfCookieFilter;
 import com.udemy.security.filter.RequestValidateBeforeFillter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,6 +49,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.csrfTokenRequestHandler(requestHandler).ignoringRequestMatchers("/register")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 ).addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
+                .addFilterAfter(new AuthoritieslLoggingAfterFilter(), BasicAuthenticationFilter.class)
+                .addFilterAt(new AuthoritiesLoggingAtFilter(), BasicAuthenticationFilter.class)
                 //Test fillterBefore
 //                .addFilterBefore(new RequestValidateBeforeFillter(), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests(requests ->

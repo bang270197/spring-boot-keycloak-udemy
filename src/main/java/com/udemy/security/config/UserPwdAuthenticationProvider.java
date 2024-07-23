@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -35,10 +36,10 @@ public class UserPwdAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String userName = authentication.getName();
         String pwd = authentication.getCredentials().toString();
-       List<Customer> customers = customerRepository.findByEmail(userName);
+       Optional<Customer> customers = customerRepository.findByEmail(userName);
        if (!customers.isEmpty()){
-           if (passwordEncoder.matches(pwd, customers.get(0).getPwd())){
-                List<GrantedAuthority> grantedAuthorities = getGrantedAuthoritys(customers.get(0).getAuthoritys());
+           if (passwordEncoder.matches(pwd, customers.get().getPwd())){
+                List<GrantedAuthority> grantedAuthorities = getGrantedAuthoritys(customers.get().getAuthoritys());
 //                grantedAuthorities.add(new SimpleGrantedAuthority(customers.get(0).getRole()));
 
                return new UsernamePasswordAuthenticationToken(userName, pwd, grantedAuthorities);

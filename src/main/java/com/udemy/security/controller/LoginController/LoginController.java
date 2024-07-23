@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -41,11 +42,7 @@ public class LoginController {
 
     @GetMapping("/user")
     public Customer getUserDetailAfterLogin(Authentication authentication){
-        List<Customer> customers = customerRepository.findByEmail(authentication.getName());
-        if (!customers.isEmpty()){
-            return customers.get(0);
-        } else {
-            return null;
-        }
+        Optional<Customer> customers = customerRepository.findByEmail(authentication.getName());
+        return customers.orElse(null);
     }
 }
