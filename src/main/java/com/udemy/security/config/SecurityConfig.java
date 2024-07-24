@@ -1,5 +1,7 @@
 package com.udemy.security.config;
 
+import com.udemy.security.exceptionhandling.CustomAccessDeniedHander;
+import com.udemy.security.exceptionhandling.CustomBasicAuthenticationEntryPoint;
 import com.udemy.security.filter.AuthoritiesLoggingAtFilter;
 import com.udemy.security.filter.AuthoritieslLoggingAfterFilter;
 import com.udemy.security.filter.CsrfCookieFilter;
@@ -14,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
@@ -38,7 +41,7 @@ public class SecurityConfig {
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration config = new CorsConfiguration();
-                        config.setAllowedOrigins(Collections.singletonList("http://localhost:8080"));
+                        config.setAllowedOrigins(Collections.singletonList("*"));
                         config.setAllowedHeaders(Collections.singletonList("*"));
                         config.setAllowCredentials(true);
                         config.setAllowedMethods(Collections.singletonList("*"));
@@ -55,21 +58,17 @@ public class SecurityConfig {
 //                .addFilterBefore(new RequestValidateBeforeFillter(), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests(requests ->
                         requests
-                                .requestMatchers("/myAccount").hasAuthority("VIEWACCOUNT")
-                                .requestMatchers("/myBalance").hasAnyAuthority("VIEWBALANCE","VIEWACCOUNT")
-                                .requestMatchers("/myLoans").hasAuthority("VIEWLOANS")
-                                .requestMatchers("/myCard").hasAuthority("VIEWCARDS")
-                                .requestMatchers("/myCard").hasAuthority("VIEWCARDS")
+                                .requestMatchers("/api/v1/myAccount").hasAuthority("VIEWACCOUNT")
+                                .requestMatchers("/api/v1/myBalance").hasAnyAuthority("VIEWBALANCE","VIEWACCOUNT")
+                                .requestMatchers("/api/v1/myLoans").hasAuthority("VIEWLOANS")
+                                .requestMatchers("/api/v1/myCard").hasAuthority("VIEWCARDS")
 
-                                .requestMatchers("/myAccount",
-                                        "/myContact",
-                                        "/myBalance",
-                                        "/myCard",
-                                        "/myLoans", "/user", "/api/v1/**").authenticated()
+                                .requestMatchers( "/api/v1/user").authenticated()
                                 .requestMatchers("/myNotice", "/register").permitAll()
-                )
-                .formLogin(Customizer.withDefaults())
-                .httpBasic(Customizer.withDefaults());
+                );
+                http.formLogin(Customizer.withDefaults());
+                http.httpBasic(e -> e.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
+                 http.exceptionHandling(e -> e.accessDeniedHandler(new CustomAccessDeniedHander()));
 
         return http.build();
     }
@@ -95,5 +94,21 @@ public class SecurityConfig {
 //    @Bean
 //    public PasswordEncoder passwordEncoder() {
 //        return NoOpPasswordEncoder.getInstance();
+//    }
+
+
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+//    }
+//
+//    /**
+//     * From Spring Security 6.3 version
+//     *
+//     * @return
+//     */
+//    @Bean
+//    public CompromisedPasswordChecker compromisedPasswordChecker() {
+//        return new HaveIBeenPwnedRestApiPasswordChecker();
 //    }
 }
