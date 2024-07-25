@@ -2,10 +2,7 @@ package com.udemy.security.config;
 
 import com.udemy.security.exceptionhandling.CustomAccessDeniedHander;
 import com.udemy.security.exceptionhandling.CustomBasicAuthenticationEntryPoint;
-import com.udemy.security.filter.AuthoritiesLoggingAtFilter;
-import com.udemy.security.filter.AuthoritieslLoggingAfterFilter;
-import com.udemy.security.filter.CsrfCookieFilter;
-import com.udemy.security.filter.RequestValidateBeforeFillter;
+import com.udemy.security.filter.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,10 +29,17 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
-        requestHandler.setCsrfRequestAttributeName("_csrf");
+//        requestHandler.setCsrfRequestAttributeName("_csrf"); //CREATE CSRF
 
-        http.securityContext(securityContext -> securityContext.requireExplicitSave(false))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
+        http
+                /*
+                * Spring Security quản lý SecurityContext, thông tin về người dùng đã được xác thực và các quyền của họ
+                * =>requireExplicitSave(false) Spring Security sẽ tự động lưu
+                * không cần can thiệp thêm từ phía lập trình viên
+                * */
+//                .securityContext(securityContext -> securityContext.requireExplicitSave(false))
+//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)) //active JSESSION
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // inactive JSESSION
 //                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
                     @Override
@@ -45,15 +49,26 @@ public class SecurityConfig {
                         config.setAllowedHeaders(Collections.singletonList("*"));
                         config.setAllowCredentials(true);
                         config.setAllowedMethods(Collections.singletonList("*"));
+                        config.setExposedHeaders(Arrays.asList("Authorization"));
                         config.setMaxAge(3600L);  // Use uppercase L for long literal
                         return config;
                     }
                 }))
                 .csrf(csrf -> csrf.csrfTokenRequestHandler(requestHandler).ignoringRequestMatchers("/register")
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                ).addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+                .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
+                /*
+                * Khi một yêu cầu HTTP tới, BasicAuthenticationFilter sẽ kiểm tra xem tiêu đề Authorization có tồn tại và có phải là loại Basic không.
+                  Nếu có, nó sẽ giải mã thông tin Base64 để lấy ra tên người dùng và mật khẩu.
+                  Sau đó, nó tạo ra một đối tượng UsernamePasswordAuthenticationToken với các thông tin này
+                  và gửi nó đến AuthenticationManager để xác thực.
+                * */
                 .addFilterAfter(new AuthoritieslLoggingAfterFilter(), BasicAuthenticationFilter.class)
                 .addFilterAt(new AuthoritiesLoggingAtFilter(), BasicAuthenticationFilter.class)
+
+                .addFilterAfter(new JWTTokenGeneratorFillter(), BasicAuthenticationFilter.class) //generator token sau khi đăng nhập
+                .addFilterBefore(new JWTTokenValidatorFilter(), BasicAuthenticationFilter.class) // validate token trước khi authentication
+
                 //Test fillterBefore
 //                .addFilterBefore(new RequestValidateBeforeFillter(), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests(requests ->
