@@ -34,7 +34,7 @@ public class SecurityConfig {
         http
                 /*
                 * Spring Security quản lý SecurityContext, thông tin về người dùng đã được xác thực và các quyền của họ
-                * =>requireExplicitSave(false) Spring Security sẽ tự động lưu
+                * =>requireExplicitSave(false) Spring Security sẽ tự động lưu SecurityContextHolder.getContext().save()
                 * không cần can thiệp thêm từ phía lập trình viên
                 * */
 //                .securityContext(securityContext -> securityContext.requireExplicitSave(false))
@@ -58,14 +58,14 @@ public class SecurityConfig {
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 /*
-                * Khi một yêu cầu HTTP tới, BasicAuthenticationFilter sẽ kiểm tra xem tiêu đề Authorization có tồn tại và có phải là loại Basic không.
+                * Khi một yêu cầu HTTP tới, BasicAuthenticationFilter sẽ kiểm tra xem tiêu đề Authorization
+                * có tồn tại và có phải là loại Basic không.
                   Nếu có, nó sẽ giải mã thông tin Base64 để lấy ra tên người dùng và mật khẩu.
                   Sau đó, nó tạo ra một đối tượng UsernamePasswordAuthenticationToken với các thông tin này
                   và gửi nó đến AuthenticationManager để xác thực.
                 * */
                 .addFilterAfter(new AuthoritieslLoggingAfterFilter(), BasicAuthenticationFilter.class)
                 .addFilterAt(new AuthoritiesLoggingAtFilter(), BasicAuthenticationFilter.class)
-
                 .addFilterAfter(new JWTTokenGeneratorFillter(), BasicAuthenticationFilter.class) //generator token sau khi đăng nhập
                 .addFilterBefore(new JWTTokenValidatorFilter(), BasicAuthenticationFilter.class) // validate token trước khi authentication
 

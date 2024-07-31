@@ -29,9 +29,11 @@ public class UserPwdAuthenticationProvider implements AuthenticationProvider {
     * */
 
     /*
-    * AuthenticationManager sẽ điều phối quá trình xác thực bằng cách chuyển tiếp đối tượng Authentication đến một hoặc nhiều AuthenticationProvider đã được cấu hình.
+    * AuthenticationManager sẽ điều phối quá trình xác thực bằng cách chuyển tiếp đối tượng
+    * Authentication đến một hoặc nhiều AuthenticationProvider đã được cấu hình.
       Mỗi AuthenticationProvider sẽ cố gắng xác thực thông tin trong đối tượng Authentication.
-      Nếu một AuthenticationProvider xác thực thành công, nó sẽ trả về một đối tượng Authentication chứa các thông tin người dùng, quyền hạn, và trạng thái xác thực.
+      Nếu một AuthenticationProvider xác thực thành công, nó sẽ trả về một đối tượng Authentication
+      * chứa các thông tin người dùng, quyền hạn, và trạng thái xác thực.
     * */
 
     private final CustomerRepository customerRepository;
