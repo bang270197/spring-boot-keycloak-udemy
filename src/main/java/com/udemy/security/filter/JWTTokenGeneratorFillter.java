@@ -47,8 +47,9 @@ public class JWTTokenGeneratorFillter extends OncePerRequestFilter {
         }
     }
 
+    //khác url /api/v1/user thì sẽ vào đây
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return !request.getServletPath().equals("/user");
+        return !request.getServletPath().equals("/api/v1/user");
     }
 }

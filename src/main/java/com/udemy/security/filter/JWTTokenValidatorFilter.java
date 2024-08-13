@@ -55,10 +55,12 @@ public class JWTTokenValidatorFilter extends OncePerRequestFilter {
 
             }
         }
+        filterChain.doFilter(request,response);
     }
 
+    //url /api/v1/user không đi qua đây
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return request.getServletPath().equals("/user");
+        return request.getServletPath().equals("/api/v1/user");
     }
 }

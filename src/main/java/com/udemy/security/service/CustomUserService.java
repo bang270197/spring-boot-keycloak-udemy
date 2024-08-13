@@ -1,5 +1,6 @@
 package com.udemy.security.service;
 
+import com.udemy.security.entity.Authority;
 import com.udemy.security.entity.Customer;
 import com.udemy.security.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,10 +41,22 @@ public class CustomUserService implements UserDetailsService {
             throw new UsernameNotFoundException("User not fount with username: " + username);
         } else {
             grantedAuthorities = new ArrayList<>();
-            grantedAuthorities.add(new SimpleGrantedAuthority(customers.get().getRole()));
+//            grantedAuthorities.add(new SimpleGrantedAuthority(customers.get().getRole()));
+
+//            grantedAuthorities = customers.get().getAuthoritys().stream().map(authority -> new
+//                    SimpleGrantedAuthority(authority.getName())).collect(Collectors.toList());
+
             userName = customers.get().getEmail();
             passWord = customers.get().getPwd();
         }
-        return new User(userName, passWord, grantedAuthorities);
+        return new User(userName, passWord, getGrantedAuthoritys(customers.get().getAuthoritys()));
+    }
+
+    private List<GrantedAuthority> getGrantedAuthoritys(Set<Authority> authoritys){
+        List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+        for (Authority item :authoritys){
+            grantedAuthorities.add(new SimpleGrantedAuthority(item.getName()));
+        }
+        return grantedAuthorities;
     }
 }

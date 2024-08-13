@@ -10,7 +10,8 @@ public class AuthenticateController {
 
     @GetMapping("/myAccount")
     public String getAccountDetails() {
-        return "Here are the account details from the DB";
+        return
+                "Here are the account details from the DB";
     }
 
     @GetMapping("/myBalance")

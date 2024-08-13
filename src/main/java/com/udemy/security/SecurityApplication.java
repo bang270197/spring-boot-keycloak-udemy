@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 @SpringBootApplication
 //@EnableWebSecurity(debug = true)
 @EnableWebSecurity(debug = false)
+//có bật log debug của Spring Security hay không
 public class SecurityApplication {
 
     public static void main(String[] args) {

@@ -11,6 +11,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -36,26 +38,31 @@ public class UserPwdAuthenticationProvider implements AuthenticationProvider {
       * chứa các thông tin người dùng, quyền hạn, và trạng thái xác thực.
     * */
 
-    private final CustomerRepository customerRepository;
-
+//    private final CustomerRepository customerRepository;
+    private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String userName = authentication.getName();
         String pwd = authentication.getCredentials().toString();
-       Optional<Customer> customers = customerRepository.findByEmail(userName);
-       if (!customers.isEmpty()){
-           if (passwordEncoder.matches(pwd, customers.get().getPwd())){
-                List<GrantedAuthority> grantedAuthorities = getGrantedAuthoritys(customers.get().getAuthoritys());
+       UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+       if (passwordEncoder.matches(pwd, userDetails.getPassword())){
+           return new UsernamePasswordAuthenticationToken(userName, pwd, userDetails.getAuthorities());
+       } else {
+           throw  new BadCredentialsException("Invalid pasword");
+       }
+//       if (!userDetails.isEmpty()){
+//           if (passwordEncoder.matches(pwd, userDetails.getPassword())){
+//                List<GrantedAuthority> grantedAuthorities = getGrantedAuthoritys(customers.get().getAuthoritys());
 //                grantedAuthorities.add(new SimpleGrantedAuthority(customers.get(0).getRole()));
 
-               return new UsernamePasswordAuthenticationToken(userName, pwd, grantedAuthorities);
-           }
-           throw  new BadCredentialsException("Invalid pasword");
-       } else {
-           throw new BadCredentialsException("No user registered with the detail");
-       }
+
+//           }
+//
+//       } else {
+//           throw new BadCredentialsException("No user registered with the detail");
+//       }
     }
 
     private List<GrantedAuthority> getGrantedAuthoritys(Set<Authority> authoritys){

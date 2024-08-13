@@ -11,13 +11,4 @@ public class PermitAllController {
         return "Here are the noties details from the DB";
     }
 
-    @GetMapping("/contact")
-    public String getContactDetails() {
-        return "Here are the contact details from the DB";
-    }
-
-    @GetMapping("/register")
-    public String getRegisterDetails() {
-        return "Here are the register details from the DB";
-    }
 }
