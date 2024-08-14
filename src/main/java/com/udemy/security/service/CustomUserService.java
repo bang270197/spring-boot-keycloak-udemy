@@ -12,11 +12,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.udemy.security.constant.Constants.ROLE_;
 
 @Service
 @RequiredArgsConstructor
@@ -48,8 +47,10 @@ public class CustomUserService implements UserDetailsService {
 
             userName = customers.get().getEmail();
             passWord = customers.get().getPwd();
+            grantedAuthorities.add(new SimpleGrantedAuthority(ROLE_ +customers.get().getRole()));//ROLE + tiền tố ROLE
         }
-        return new User(userName, passWord, getGrantedAuthoritys(customers.get().getAuthoritys()));
+//        return new User(userName, passWord, getGrantedAuthoritys(customers.get().getAuthoritys()));
+        return new User(userName, passWord, grantedAuthorities);
     }
 
     private List<GrantedAuthority> getGrantedAuthoritys(Set<Authority> authoritys){

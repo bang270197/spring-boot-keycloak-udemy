@@ -33,7 +33,7 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
-        requestHandler.setCsrfRequestAttributeName("_csrf"); //CREATE CSRF
+//        requestHandler.setCsrfRequestAttributeName("_csrf"); //CREATE CSRF
 
         http
                 /*
@@ -58,8 +58,9 @@ public class SecurityConfig {
                         return config;
                     }
                 }))
+                //CSRF bảo vệ thường chỉ được áp dụng cho các HTTP methods thay đổi trạng thái của server (như POST, PUT, DELETE)
                 .csrf(csrf -> csrf.csrfTokenRequestHandler(requestHandler)
-                        .ignoringRequestMatchers("/api/v1/register","/api/v1/user","/api/v1/login")
+                        .ignoringRequestMatchers("/api/v1/myContact","/api/v1/register","/api/v1/user","/api/v1/login")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 /*
@@ -82,9 +83,11 @@ public class SecurityConfig {
                         requests
                                 //kiểm tra một quyền cụ thể mà người dùng phải có
                                 //chỉ định các quyền rất chi tiết cho từng API
-                                .requestMatchers("/myNotice").hasAuthority("VIEWACCOUNT")
+//                                .requestMatchers("/myNotice").hasAuthority("USER")
+                                .requestMatchers("/api/v1/myNotice").hasRole("USER")
+                                .requestMatchers("/api/v1/myContact").hasRole("USER")
                                 //hasRole kiểm tra vai trò của người dùng
-//                                .requestMatchers("/myCards").hasRole("USER")
+                                .requestMatchers("/api/v1/myCards").hasAnyAuthority("VIEWCARDS")
 
 //                                .requestMatchers("/api/v1/myBalance").hasAnyAuthority("VIEWBALANCE","VIEWACCOUNT")
 //                                .requestMatchers("/api/v1/myLoans").hasAuthority("VIEWLOANS")
