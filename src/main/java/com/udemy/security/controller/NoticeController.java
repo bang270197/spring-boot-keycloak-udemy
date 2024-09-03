@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 public class NoticeController {
     private final NoticeDetailRepository noticeDetailRepository;
 
-    @PostAuthorize("hasRole('USER')")//Dùng để kiểm tra điều kiện sau khi thực thi phương thức
+    @PostAuthorize("hasRole('ADMIN')")//Dùng để kiểm tra điều kiện sau khi thực thi phương thức
     //Kiểm tra đầu ra phải là user đăng nhập
 //    @PostAuthorize("returnObject.username = authentication.principal.username")
 

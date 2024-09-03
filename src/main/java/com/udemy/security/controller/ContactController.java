@@ -24,7 +24,6 @@ public class ContactController {
     // đầu vào trước khi phương thức được thực thi
     @PreFilter("filterObject.contactName != 'Test'")
     @PostMapping("myContact")
-
     public ContactMessage saveContactInquiryDetails(@RequestBody List<ContactMessage> contactMessages){
         ContactMessage contactMessage = contactMessages.getFirst();
         if (null != contactMessage){

@@ -32,9 +32,6 @@ import java.util.Collections;
 public class SecurityConfig {
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
-//        requestHandler.setCsrfRequestAttributeName("_csrf"); //CREATE CSRF
-
         http
                 /*
                 * Spring Security quản lý SecurityContext, thông tin về người dùng đã được xác thực và các quyền của họ
@@ -58,40 +55,15 @@ public class SecurityConfig {
                         return config;
                     }
                 }))
-                //CSRF bảo vệ thường chỉ được áp dụng cho các HTTP methods thay đổi trạng thái của server (như POST, PUT, DELETE)
-                .csrf(csrf -> csrf.csrfTokenRequestHandler(requestHandler)
-                        .ignoringRequestMatchers("/api/v1/myContact","/api/v1/register","/api/v1/user","/api/v1/login")
-                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
-                /*
-                * Khi một yêu cầu HTTP tới, BasicAuthenticationFilter sẽ kiểm tra xem tiêu đề Authorization
-                * có tồn tại và có phải là loại Basic không.
-                  Nếu có, nó sẽ giải mã thông tin Base64 để lấy ra tên người dùng và mật khẩu.
-                  Sau đó, nó tạo ra một đối tượng UsernamePasswordAuthenticationToken với các thông tin này
-                  và gửi nó đến AuthenticationManager để xác thực.
-                * */
-//                .addFilterAfter(new AuthoritieslLoggingAfterFilter(), BasicAuthenticationFilter.class)
-//                .addFilterAt(new AuthoritiesLoggingAtFilter(), BasicAuthenticationFilter.class)
-
-
-                .addFilterAfter(new JWTTokenGeneratorFillter(), BasicAuthenticationFilter.class) //generator token sau khi đăng nhập
-                .addFilterBefore(new JWTTokenValidatorFilter(), BasicAuthenticationFilter.class) // validate token trước khi authentication
-
-                //Test fillterBefore
-//                .addFilterBefore(new RequestValidateBeforeFillter(), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests(requests ->
                         requests
                                 //kiểm tra một quyền cụ thể mà người dùng phải có
                                 //chỉ định các quyền rất chi tiết cho từng API
 //                                .requestMatchers("/myNotice").hasAuthority("USER")
-                                .requestMatchers("/api/v1/myNotice").hasRole("USER")
+                                .requestMatchers("/api/v1/myNotice").hasRole("ADMIN")
                                 .requestMatchers("/api/v1/myContact").hasRole("USER")
                                 //hasRole kiểm tra vai trò của người dùng
-                                .requestMatchers("/api/v1/myCards").hasAnyAuthority("VIEWCARDS")
-
-//                                .requestMatchers("/api/v1/myBalance").hasAnyAuthority("VIEWBALANCE","VIEWACCOUNT")
-//                                .requestMatchers("/api/v1/myLoans").hasAuthority("VIEWLOANS")
-//                                .requestMatchers("/api/v1/myCard").hasAuthority("VIEWCARDS")
 
                                 .requestMatchers( "/api/v1/user").authenticated()
                                 .requestMatchers( "/api/v1/register", "/api/v1/login","/notices").permitAll()
@@ -102,60 +74,7 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-
-//    @Bean
-//    CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.setAllowedOrigins(Arrays.asList("https://example.com"));
-//        configuration.setAllowedMethods(Arrays.asList("GET","POST"));
-//        configuration.setAllowedHeaders(Arrays.asList("*"));
-//        configuration.setMaxAge(3600l);
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", configuration);
-//        return source;
-//    }
-
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManage(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder){
-        UserPwdAuthenticationProvider userPwdAuthenticationProvider =
-                new UserPwdAuthenticationProvider(userDetailsService, passwordEncoder);
-        ProviderManager providerManager = new ProviderManager(
-                userPwdAuthenticationProvider
-        );
-        // Thiết lập này ngăn không cho ProviderManager xóa thông tin xác thực sau khi quá trình xác thực hoàn tất
-        providerManager.setEraseCredentialsAfterAuthentication(false);
-        return providerManager;
-    }
-
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return NoOpPasswordEncoder.getInstance();
-//    }
-
-
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-//    }
-//
-//    /**
-//     * From Spring Security 6.3 version
-//     *
-//     * @return
-//     */
-//    @Bean
-//    public CompromisedPasswordChecker compromisedPasswordChecker() {
-//        return new HaveIBeenPwnedRestApiPasswordChecker();
-//    }
 }
+
+
+
