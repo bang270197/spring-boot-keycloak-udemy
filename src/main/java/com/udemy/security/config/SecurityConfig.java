@@ -32,45 +32,16 @@ import java.util.Collections;
 public class SecurityConfig {
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http
-                /*
-                * Spring Security quản lý SecurityContext, thông tin về người dùng đã được xác thực và các quyền của họ
-                * =>requireExplicitSave(false) Spring Security sẽ tự động lưu SecurityContextHolder.getContext().save()
-                * không cần can thiệp thêm từ phía lập trình viên
-                * */
-//                .securityContext(securityContext -> securityContext.requireExplicitSave(false))
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)) //active JSESSION
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // inactive JSESSION
-//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .cors(cors -> cors.configurationSource(new CorsConfigurationSource() {
-                    @Override
-                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                        CorsConfiguration config = new CorsConfiguration();
-                        config.setAllowedOrigins(Collections.singletonList("*"));
-                        config.setAllowedHeaders(Collections.singletonList("*"));
-                        config.setAllowCredentials(true);
-                        config.setAllowedMethods(Collections.singletonList("*"));
-                        config.setExposedHeaders(Arrays.asList("Authorization"));
-                        config.setMaxAge(3600L);  // Use uppercase L for long literal
-                        return config;
-                    }
-                }))
-                .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
-                .authorizeHttpRequests(requests ->
-                        requests
-                                //kiểm tra một quyền cụ thể mà người dùng phải có
-                                //chỉ định các quyền rất chi tiết cho từng API
-//                                .requestMatchers("/myNotice").hasAuthority("USER")
-                                .requestMatchers("/api/v1/myNotice").hasRole("ADMIN")
-                                .requestMatchers("/api/v1/myContact").hasRole("USER")
-                                //hasRole kiểm tra vai trò của người dùng
+        CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // inactive JSESSION
+                .csrf(csrf -> csrf.csrfTokenRequestHandler(requestHandler).ignoringRequestMatchers("/api/v1/myContact", "/api/v1/myNotice", "/api/v1/register", "/api/v1/user", "/api/v1/login").csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())).addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
 
-                                .requestMatchers( "/api/v1/user").authenticated()
-                                .requestMatchers( "/api/v1/register", "/api/v1/login","/notices").permitAll()
-                );
-                http.formLogin(Customizer.withDefaults());
-                http.httpBasic(e -> e.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
-                 http.exceptionHandling(e -> e.accessDeniedHandler(new CustomAccessDeniedHander()));
+                .authorizeHttpRequests(requests -> requests.requestMatchers("/api/v1/myNotice").hasRole("ADMIN").requestMatchers("/api/v1/myContact").hasRole("USER").requestMatchers("/api/v1/user").authenticated().requestMatchers("/api/v1/register", "/api/v1/login", "/notices").permitAll());
+        http.formLogin(Customizer.withDefaults());
+
+
+        http.httpBasic(e -> e.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
+        http.exceptionHandling(e -> e.accessDeniedHandler(new CustomAccessDeniedHander()));
 
         return http.build();
     }
