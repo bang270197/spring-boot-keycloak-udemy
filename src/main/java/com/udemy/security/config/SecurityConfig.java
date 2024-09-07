@@ -15,6 +15,17 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
 @Configuration
 public class SecurityConfig {
+
+//    @Value("${spring.security.oauth2.resourceserver.opaquetoken.introspection-uri}")
+//    private String introspectionUri;
+//
+//    @Value("${spring.security.oauth2.resourceserver.opaquetoken.client-id}")
+//    private String introspectionClientId;
+//
+//    @Value("${spring.security.oauth2.resourceserver.opaquetoken.client-secret}")
+//    private String introspectionClientSecret;
+
+
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
@@ -39,6 +50,10 @@ public class SecurityConfig {
                                 .requestMatchers("/api/v1/register").permitAll());
         http.oauth2ResourceServer(rsc -> rsc.jwt(jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter)));
 
+
+//        http.oauth2ResourceServer(rsc ->rsc.opaqueToken(otc ->otc.authenticationConverter(new KeyCloakOpaqueRoleConverter())
+//                .introspectionUri(introspectionUri).
+//                introspectionClientCredentials(introspectionClientId, introspectionClientSecret)));
 
         http.httpBasic(e -> e.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
         http.exceptionHandling(e -> e.accessDeniedHandler(new CustomAccessDeniedHander()));
